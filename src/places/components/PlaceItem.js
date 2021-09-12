@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import styled from 'styled-components';
 
 import Card from '../../shared/components/UI/Card';
 import Button from '../../shared/components/FormElements/Button';
 import Modal from '../../shared/components/UI/Modal';
+import Map from '../../shared/components/UI/Map';
 
 const Styles = styled.li`
   margin: 1rem 0;
@@ -67,6 +68,11 @@ const Styles = styled.li`
   }
 `;
 
+const MapContainer = styled.div`
+  height: 15rem;
+  width: 100%;
+`;
+
 const PlaceItem = (props) => {
   const {
     id,
@@ -78,26 +84,50 @@ const PlaceItem = (props) => {
     coordinates,
   } = props;
 
-  const [showMap, setShowMap] = useState();
+  const [showMap, setShowMap] = useState(false);
+
+  const openMapHandler = () => {
+    setShowMap(true);
+  };
+
+  const closeMapHandler = () => {
+    setShowMap(false);
+  };
 
   return (
-    <Styles>
-      <Card className='content'>
-        <div className='image'>
-          <img src={image} alt={props.title} />
-        </div>
-        <div className='info'>
-          <h2>{title}</h2>
-          <h3>{address}</h3>
-          <p>{description}</p>
-        </div>
-        <div className='actions'>
-          <Button inverse>VIEW ON MAP</Button>
-          <Button to={`/places/${id}`}>EDIT</Button>
-          <Button danger>DELETE</Button>
-        </div>
-      </Card>
-    </Styles>
+    <Fragment>
+      <Modal
+        show={showMap}
+        onCancel={closeMapHandler}
+        header={address}
+        contentClass='modal-content'
+        footerClass='modal-actions'
+        footer={<Button onClick={closeMapHandler}>CLOSE</Button>}
+      >
+        <MapContainer>
+          <Map center={ coordinates } zoom={ 16 }/>
+        </MapContainer>
+      </Modal>
+      <Styles>
+        <Card className='content'>
+          <div className='image'>
+            <img src={image} alt={props.title} />
+          </div>
+          <div className='info'>
+            <h2>{title}</h2>
+            <h3>{address}</h3>
+            <p>{description}</p>
+          </div>
+          <div className='actions'>
+            <Button inverse onClick={openMapHandler}>
+              VIEW ON MAP
+            </Button>
+            <Button to={`/places/${id}`}>EDIT</Button>
+            <Button danger>DELETE</Button>
+          </div>
+        </Card>
+      </Styles>
+    </Fragment>
   );
 };
 
