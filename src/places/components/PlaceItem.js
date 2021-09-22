@@ -1,10 +1,11 @@
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useContext } from 'react';
 import styled from 'styled-components';
 
 import Card from '../../shared/components/UI/Card';
 import Button from '../../shared/components/FormElements/Button';
 import Modal from '../../shared/components/UI/Modal';
 import Map from '../../shared/components/UI/Map';
+import { AuthContext } from '../../shared/context/auth-context';
 
 const Styles = styled.li`
   margin: 1rem 0;
@@ -45,14 +46,6 @@ const Styles = styled.li`
     justify-content: center;
   }
 
-  .modal-content {
-    padding: 0;
-  }
-
-  .modal-actions {
-    text-align: right;
-  }
-
   .actions Button,
   .actions a {
     margin: 0.5rem;
@@ -69,11 +62,12 @@ const Styles = styled.li`
 `;
 
 const MapContainer = styled.div`
-  height: 15rem;
+  height: 20rem;
   width: 100%;
 `;
 
 const PlaceItem = (props) => {
+  const auth = useContext(AuthContext);
   const {
     id,
     image,
@@ -85,6 +79,7 @@ const PlaceItem = (props) => {
   } = props;
 
   const [showMap, setShowMap] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const openMapHandler = () => {
     setShowMap(true);
@@ -92,6 +87,19 @@ const PlaceItem = (props) => {
 
   const closeMapHandler = () => {
     setShowMap(false);
+  };
+
+  const showDeleteWarningHandler = () => {
+    setShowConfirmModal(true);
+  };
+
+  const cancelDeleteHandler = () => {
+    setShowConfirmModal(false);
+  };
+
+  const confirmDeleteHandler = () => {
+    setShowConfirmModal(false);
+    console.log('DELETING...');
   };
 
   return (
@@ -105,8 +113,29 @@ const PlaceItem = (props) => {
         footer={<Button onClick={closeMapHandler}>CLOSE</Button>}
       >
         <MapContainer>
-          <Map center={ coordinates } zoom={ 16 }/>
+          <Map center={coordinates} zoom={16} />
         </MapContainer>
+      </Modal>
+      <Modal
+        show={showConfirmModal}
+        onCancel={cancelDeleteHandler}
+        header='Are you sure?'
+        footerClass='modal-actions'
+        footer={
+          <Fragment>
+            <Button inverse onClick={cancelDeleteHandler}>
+              CANCEL
+            </Button>
+            <Button danger onClick={confirmDeleteHandler}>
+              DELETE
+            </Button>
+          </Fragment>
+        }
+      >
+        <p>
+          Do you want to proceed and delete this place? PLease note
+          that it can't be undone thereafter.
+        </p>
       </Modal>
       <Styles>
         <Card className='content'>
@@ -122,8 +151,14 @@ const PlaceItem = (props) => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            <Button to={`/places/${id}`}>EDIT</Button>
-            <Button danger>DELETE</Button>
+            {auth.isLoggedIn && (
+              <Button to={`/places/${id}`}>EDIT</Button>
+            )}
+            {auth.isLoggedIn && (
+              <Button danger onClick={showDeleteWarningHandler}>
+                DELETE
+              </Button>
+            )}
           </div>
         </Card>
       </Styles>

@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -11,6 +12,9 @@ import Users from './user/pages/Users';
 import UserPlaces from './places/pages/UserPlaces';
 import NewPlace from './places/pages/NewPlace';
 import MainNavigation from './shared/components/Navigation/MainNavigation';
+import UpdatePlace from './places/pages/UpdatePlace';
+import Auth from './user/pages/Auth';
+import { AuthContext } from './shared/context/auth-context';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -53,30 +57,80 @@ const GlobalStyle = createGlobalStyle`
     justify-content: center;
     align-items: center;
   }
+  .modal-content {
+    padding: 0;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
 `;
 
 const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const login = useCallback(() => {
+    setIsLoggedIn(true);
+  }, []);
+
+  const logout = useCallback(() => {
+    setIsLoggedIn(false);
+  }, []);
+
+  let routes;
+
+  if (isLoggedIn) {
+    routes = (
+      <Switch>
+        <Route path='/' exact>
+          <Users />
+        </Route>
+        <Route path='/:userId/places' exact>
+          <UserPlaces />
+        </Route>
+        <Route path='/places/new' exact>
+          <NewPlace />
+        </Route>
+        <Route path='/places/:placeId' exact>
+          <UpdatePlace />
+        </Route>
+        <Redirect to='/' />
+      </Switch>
+    );
+  } else {
+    routes = (
+      <Switch>
+        <Route path='/' exact>
+          <Users />
+        </Route>
+        <Route path='/:userId/places' exact>
+          <UserPlaces />
+        </Route>
+        <Route path='/auth'>
+          <Auth />
+        </Route>
+        <Redirect to='/auth' />
+      </Switch>
+    );
+  }
+
   return (
-    <Router>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <MainNavigation />
-        <main>
-          <Switch>
-            <Route path='/' exact>
-              <Users />
-            </Route>
-            <Route path='/:userId/places' exact>
-              <UserPlaces />
-            </Route>
-            <Route path='/places/new' exact>
-              <NewPlace />
-            </Route>
-            <Redirect to='/' />
-          </Switch>
-        </main>
-      </ThemeProvider>
-    </Router>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn,
+        login: login,
+        logout: logout,
+      }}
+    >
+      <Router>
+        <ThemeProvider theme={theme}>
+          <GlobalStyle />
+          <MainNavigation />
+          <main>{routes}</main>
+        </ThemeProvider>
+      </Router>
+    </AuthContext.Provider>
   );
 };
 

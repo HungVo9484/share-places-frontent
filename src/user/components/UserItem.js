@@ -58,7 +58,7 @@ const UserItem = (props) => {
   return (
     <Styles>
       <Card className='content'>
-        <LinkStyles to={`/${id}/place`}>
+        <LinkStyles to={`/${id}/places`}>
           <div className='image'>
             <Avatar image={image} alt={name} />
           </div>
