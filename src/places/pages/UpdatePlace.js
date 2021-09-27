@@ -41,7 +41,7 @@ const UpdatePlace = () => {
     const fetchData = async () => {
       try {
         const resData = await sendRequest(
-          `http://localhost:5000/api/places/${placeId}`
+          `${process.env.REACT_APP_BACKEND_URL}/places/${placeId}`
         );
         setFormData(
           {

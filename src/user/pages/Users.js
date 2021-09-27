@@ -14,7 +14,7 @@ const User = () => {
     const fetchData = async () => {
       try {
         const resData = await sendRequest(
-          'http://localhost:5000/api/users'
+          process.env.REACT_APP_BACKEND_URL + '/users'
         );
         setLoadedUser(resData);
       } catch (err) {}
