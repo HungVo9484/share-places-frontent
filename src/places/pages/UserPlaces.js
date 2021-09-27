@@ -1,40 +1,46 @@
+import { useState, useEffect, Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 
 import PlaceList from '../components/PlaceList';
-
-const DUMMY_PLACES = [
-  {
-    id: 'p1',
-    title: 'Empire State Building',
-    description: 'One of the most famous sky scrappers in the world',
-    imageUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg',
-    address: 'New York, NY 10001, USA',
-    location: {
-      lat: 40.7485452,
-      lng: -73.9879522,
-    },
-    creator: 'u1'
-  },
-  {
-    id: 'p2',
-    title: 'Empire State Building',
-    description: 'One of the most famous sky scrappers in the world',
-    imageUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/800px-Empire_State_Building_%28aerial_view%29.jpg',
-    address: 'New York, NY 10001, USA',
-    location: {
-      lat: 40.7485452,
-      lng: -73.9879522,
-    },
-    creator: 'u2'
-  },
-];
+import { useHttpClient } from '../../shared/hooks/http-hook';
+import ErrorModal from '../../shared/components/UI/ErrorModal';
+import LoadingSpinner from '../../shared/components/UI/LoadingSpinner';
 
 const UserPlaces = () => {
+  const { isLoading, error, sendRequest, clearError } =
+    useHttpClient();
+  const [loadedPlaces, setLoadedPlaces] = useState();
   const userId = useParams().userId;
-  const loadedPlaces = DUMMY_PLACES.filter(place => place.creator === userId);
-  return <PlaceList items={loadedPlaces} />;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resData = await sendRequest(
+          `http://localhost:5000/api/places/user/${userId}`
+        );
+        setLoadedPlaces(resData);
+      } catch (err) {
+        setLoadedPlaces([])
+      }
+    };
+    fetchData();
+  }, [sendRequest, userId]);
+
+  const onDeletePlace = (placeId) => {
+    setLoadedPlaces(prevPlaces => prevPlaces.filter(p => p.id !== placeId))
+  }
+
+  return (
+    <Fragment>
+      <ErrorModal error={error} onClear={clearError} />
+      {isLoading && (
+        <div className='center'>
+          <LoadingSpinner />
+        </div>
+      )}
+      {!isLoading && loadedPlaces && <PlaceList items={loadedPlaces} onDeletePlace={onDeletePlace} />}
+    </Fragment>
+  );
 };
 
 export default UserPlaces;

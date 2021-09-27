@@ -53,19 +53,19 @@ const LinkStyles = styled(Link)`
 `;
 
 const UserItem = (props) => {
-  const { id, name, image, placeCount } = props;
+  const { id, name, image, places } = props;
 
   return (
     <Styles>
       <Card className='content'>
         <LinkStyles to={`/${id}/places`}>
           <div className='image'>
-            <Avatar image={image} alt={name} />
+            <Avatar image={`http://localhost:5000/${image}`} alt={name} />
           </div>
           <div className='info'>
             <h2>{name}</h2>
             <h3>
-              {placeCount} {placeCount === 1 ? 'Place' : 'Places'}
+              {places.length} {places.length > 1 ? 'Places' : 'Place'}
             </h3>
           </div>
         </LinkStyles>

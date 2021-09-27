@@ -1,4 +1,3 @@
-import { useState, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -15,6 +14,7 @@ import MainNavigation from './shared/components/Navigation/MainNavigation';
 import UpdatePlace from './places/pages/UpdatePlace';
 import Auth from './user/pages/Auth';
 import { AuthContext } from './shared/context/auth-context';
+import { useAuth } from './shared/hooks/auth-hook';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -67,20 +67,13 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const login = useCallback(() => {
-    setIsLoggedIn(true);
-  }, []);
-
-  const logout = useCallback(() => {
-    setIsLoggedIn(false);
-  }, []);
+  const { token, userId, login, logout } = useAuth();
 
   let routes;
 
-  if (isLoggedIn) {
+  if (token) {
     routes = (
       <Switch>
         <Route path='/' exact>
@@ -118,7 +111,9 @@ const App = () => {
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn: isLoggedIn,
+        isLoggedIn: !!token,
+        token: token,
+        userId: userId,
         login: login,
         logout: logout,
       }}

@@ -14,7 +14,7 @@ const Styles = styled.div`
   }
 `;
 const PlaceList = (props) => {
-  const { items } = props;
+  const { items, onDeletePlace } = props;
 
   if (items.length === 0) {
     return (
@@ -36,12 +36,13 @@ const PlaceList = (props) => {
           <PlaceItem
             key={place.id}
             id={place.id}
-            image={place.imageUrl}
+            image={place.image}
             title={place.title}
             description={place.description}
             address={place.address}
             creatorId={place.creator}
-            coordinates={place.location}
+            coordinates={ place.location }
+            onDelete={onDeletePlace}
           />
         ))}
       </ul>

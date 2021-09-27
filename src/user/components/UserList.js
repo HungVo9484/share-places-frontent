@@ -35,7 +35,7 @@ const UserList = (props) => {
           id={user.id}
           image={user.image}
           name={user.name}
-          placeCount={user.places}
+          places={user.places}
         />
       ))}
     </UnList>
